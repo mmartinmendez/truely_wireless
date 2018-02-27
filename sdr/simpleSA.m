@@ -46,7 +46,8 @@ else
 end
 
 if nargin >= 5
-    axis([F(1) F(end) min_dB max_dB]);
+%     axis([F(1) F(end) min_dB max_dB]);
+    axis([-100 100 min_dB max_dB]);
 end
 
 xlabel('Frequency (Hz)')

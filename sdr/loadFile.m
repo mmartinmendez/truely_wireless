@@ -13,6 +13,6 @@ y = y-127;
 y = y(1:2:end) + i*y(2:2:end);
 
 % simpleSA(y,2^14,2400);
-simpleSA(y, 2^14, 2400);
+simpleSA(y, 2^14, 2400,-100,0,'r');
 print -depsc -tiff capture.eps
 
