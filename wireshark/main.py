@@ -7,16 +7,18 @@ readMode = True
 
 def main():
     filename = 'save4.pcap'
-    get_network_card('en0')
-    filter = get_access_point_mac('FRITZ!Box Fon 7360 - extended')
+    accessPointName = 'FRITZ!Box Fon 7360 - extended'
+    interfaceName = 'en0'
+
+    get_network_card(interfaceName)
+    filter = get_access_point_mac(accessPointName)
     if(readMode == False):
         timeout = 20
-        capture_packet(filename, timeout, 'en0', filter)
+        capture_packet(filename, timeout, interfaceName, filter)
     print_from_file(filename, filter)
     # addresses_list('./sav2.pcap')
 
 def capture_packet(filename, timeout, interface, filter):
-    flt = 'wlan.ta == '+str(filter)
     cap = pyshark.LiveCapture(output_file=filename, interface=interface, monitor_mode=True)
     cap.sniff(timeout=timeout)
 
@@ -60,6 +62,38 @@ def get_access_point_mac(node_name):
             print "\n"
             return str(node['bssid'])
 
+
+""" 
+    Values compared between 5 distances
+    The average value of signal strength, signal noise and snr from captured data is stored into an array
+    This data is then plotted against distance at which the packets were captured
+    
+    Run only after confirming if all the files needed are present 
+"""
+def scenerio_distance(no_files):
+    #TODO
+
+
+"""
+    Investigate if interference causes degradation of signal strength
+    Find point at which the access point switches node
+
+    Find gradient with distance away from this point. See if there is a big variation close to this point.
+"""
+def scenerio_interference():
+    #TODO
+
+"""
+    Investigate the difference the access point model contributes towards the signal strength
+"""
+def scenerio_manufacturer():
+    #TODO
+
+"""
+    Investigate the improvement/degradation caused by channel hop
+"""
+def scenerio_channel():
+    #TODO
 
 main()
 
