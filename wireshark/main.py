@@ -11,10 +11,13 @@ interferenceCapture = False
 manufacturerCapture = False
 channelCapture = False
 
+abs_filter = '3c:08:f6:fb:31:db'
+fritz_box = 'c8:0e:14:d7:0a:86'
+
 def main():
     DIR = './distances/'
     filename = DIR+'dt1.pcap'
-    accessPointName = 'eduroam'
+    accessPointName = 'iPhone'
     interfaceName = 'en0'
 
     get_network_card(interfaceName)
@@ -24,6 +27,7 @@ def main():
         capture_packet(filename, timeout, interfaceName)
     else:
         # print_from_file(filename, filter)
+        # print_from_file('sample.pcap', filter)
         if(distanceCapture):
             scenerio_distance(3, filter)
         if (interferenceCapture):
@@ -43,7 +47,7 @@ def capture_packet(filename, timeout, interface):
     print('Wifi channel: {}'.format(cap[0].wlan_radio.channel))
     print('Wifi frequency: {}'.format(cap[0].wlan_radio.frequency))
 
-def print_from_file(filename, filter='c8:0e:14:d7:0a:86'):
+def print_from_file(filename, filter=abs_filter):
     flt = 'wlan.ta == ' + str(filter)
     print flt
     cap = pyshark.FileCapture(filename, display_filter=flt)
@@ -85,7 +89,7 @@ def get_access_point_mac(node_name):
             print "\n"
             return str(node['bssid'])
 
-def calculate_average(filename, filter='c8:0e:14:d7:0a:86'):
+def calculate_average(filename, filter=abs_filter):
     flt = 'wlan.ta == ' + str(filter)
     filename = './channels'+filename
     cap = pyshark.FileCapture('./channels/channel1.pcap', display_filter=flt)
@@ -98,7 +102,7 @@ def calculate_average(filename, filter='c8:0e:14:d7:0a:86'):
     average = sum/i
     return average
 
-def get_snr_values(files, flt='c8:0e:14:d7:0a:86'):
+def get_snr_values(files, flt):
     snr = []
     for pkt in files:
         snr.append(calculate_average(pkt, flt))
@@ -112,7 +116,7 @@ def get_snr_values(files, flt='c8:0e:14:d7:0a:86'):
     Run only after confirming if all the files needed are present 
     20m, 15m, 10m, 5m, <1m
 """
-def scenerio_distance(n_files, flt='c8:0e:14:d7:0a:86'):
+def scenerio_distance(n_files, flt=abs_filter):
     #TODO
     DIR = './distances'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
@@ -134,7 +138,7 @@ def scenerio_distance(n_files, flt='c8:0e:14:d7:0a:86'):
 
     Find gradient with distance away from this point. See if there is a big variation close to this point.
 """
-def scenerio_interference(flt='c8:0e:14:d7:0a:86'):
+def scenerio_interference(flt=abs_filter):
     #TODO
     DIR = './interference'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
@@ -154,15 +158,16 @@ def scenerio_interference(flt='c8:0e:14:d7:0a:86'):
     Investigate the difference the access point model contributes towards the signal strength
     Take values at a distance of 5m from the access points
 """
-def scenerio_manufacturer(flt='c8:0e:14:d7:0a:86'):
+def scenerio_manufacturer(flt=abs_filter):
     #TODO
     DIR = './manufacturer'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
-    files = {'tp_link.pcap', 'fritzbox.pcap'}
-    snr = get_snr_values(files, flt)
+    files = {'iphone7.pcap', 'cisco.pcap', 'onePlus.pcap'}
+    mac = {'2e:20:0b:40:d1:67', '3c:08:f6:fb:31:db', '94:65:2d:8c:bc:c1'}
+    snr = get_snr_values(files, mac)
 
-    plt.plot(snr)
+    plt.hist(snr)
     plt.title('SNR fluctuation with different access points')
     plt.xlabel('Manufacturer')
     plt.ylabel('SNR')
