@@ -4,15 +4,17 @@ import access_points as ap
 import netifaces as ni
 import matplotlib.pyplot as plt
 
-readMode = False
+readMode = True
 
-#  distanceCapture, interferenceCapture, manufacturerCapture, channelFlag
-captureFlags = {False, False, False, False}
+distanceCapture = False
+interferenceCapture = False
+manufacturerCapture = False
+channelCapture = False
 
 def main():
-    DIR = './channels/'
-    filename = DIR+'channel1.pcap'
-    accessPointName = 'FRITZ!Box Fon 7360 - extended'
+    DIR = './distances/'
+    filename = DIR+'dt1.pcap'
+    accessPointName = 'eduroam'
     interfaceName = 'en0'
 
     get_network_card(interfaceName)
@@ -22,15 +24,14 @@ def main():
         capture_packet(filename, timeout, interfaceName)
     else:
         # print_from_file(filename, filter)
-        for i in range(len(captureFlags)):
-            if(captureFlags[i] and i == 0):
-                scenerio_distance(3, filter)
-            if (captureFlags[i] and i == 1):
-                scenerio_interference()
-            if (captureFlags[i] and i == 2):
-                scenerio_manufacturer()
-            if (captureFlags[i] and i == 3):
-                scenerio_channel()
+        if(distanceCapture):
+            scenerio_distance(3, filter)
+        if (interferenceCapture):
+            scenerio_interference()
+        if (manufacturerCapture):
+            scenerio_manufacturer()
+        if (channelCapture):
+            scenerio_channel(filter)
 
     # addresses_list('./sav2.pcap')
 
@@ -42,8 +43,9 @@ def capture_packet(filename, timeout, interface):
     print('Wifi channel: {}'.format(cap[0].wlan_radio.channel))
     print('Wifi frequency: {}'.format(cap[0].wlan_radio.frequency))
 
-def print_from_file(filename, filter):
+def print_from_file(filename, filter='c8:0e:14:d7:0a:86'):
     flt = 'wlan.ta == ' + str(filter)
+    print flt
     cap = pyshark.FileCapture(filename, display_filter=flt)
 
     i = 0
@@ -79,12 +81,14 @@ def get_access_point_mac(node_name):
     for node in wifi:
         if(node['ssid'] == node_name):
             print('Gateway mac addr: {}'.format(node['bssid']))
+            print('Gateway quality: {}'.format(node.quality))
             print "\n"
             return str(node['bssid'])
 
-def calculate_average(filename, filter):
+def calculate_average(filename, filter='c8:0e:14:d7:0a:86'):
     flt = 'wlan.ta == ' + str(filter)
-    cap = pyshark.FileCapture(filename, display_filter=flt)
+    filename = './channels'+filename
+    cap = pyshark.FileCapture('./channels/channel1.pcap', display_filter=flt)
     sum = 0
     i = 0
     for pkt in cap:
@@ -94,10 +98,10 @@ def calculate_average(filename, filter):
     average = sum/i
     return average
 
-def get_snr_values(files, flt):
+def get_snr_values(files, flt='c8:0e:14:d7:0a:86'):
     snr = []
-    for i in range(n_files):
-        snr.append(calculate_average(files[i], flt))
+    for pkt in files:
+        snr.append(calculate_average(pkt, flt))
     return snr
 
 """ 
@@ -108,7 +112,7 @@ def get_snr_values(files, flt):
     Run only after confirming if all the files needed are present 
     20m, 15m, 10m, 5m, <1m
 """
-def scenerio_distance(n_files, flt):
+def scenerio_distance(n_files, flt='c8:0e:14:d7:0a:86'):
     #TODO
     DIR = './distances'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
@@ -130,7 +134,7 @@ def scenerio_distance(n_files, flt):
 
     Find gradient with distance away from this point. See if there is a big variation close to this point.
 """
-def scenerio_interference(flt):
+def scenerio_interference(flt='c8:0e:14:d7:0a:86'):
     #TODO
     DIR = './interference'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
@@ -150,7 +154,7 @@ def scenerio_interference(flt):
     Investigate the difference the access point model contributes towards the signal strength
     Take values at a distance of 5m from the access points
 """
-def scenerio_manufacturer(flt):
+def scenerio_manufacturer(flt='c8:0e:14:d7:0a:86'):
     #TODO
     DIR = './manufacturer'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
@@ -168,12 +172,12 @@ def scenerio_manufacturer(flt):
 """
     Investigate the improvement/degradation caused by channel hop
 """
-def scenerio_channel(flt):
+def scenerio_channel(flt='c8:0e:14:d7:0a:86'):
     #TODO
     DIR = './channels'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
-    files = {'channel1.pcap', 'channel2.pcap', 'channel3.pcap', 'channel4.pcap', 'channel5.pcap', 'channel6.pcap', 'channel7.pcap', 'channel8.pcap', 'channel9.pcap', 'channel10.pcap', 'channel11.pcap', 'channel12.pcap', 'channel13.pcap'}
+    files = {'channel1.pcap', 'channel2.pcap', 'channel3.pcap', 'channel4.pcap', 'channel5.pcap'}
     snr = get_snr_values(files, flt)
 
     plt.plot(snr)
