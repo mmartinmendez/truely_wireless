@@ -3,14 +3,15 @@ import os, os.path
 import access_points as ap
 import netifaces as ni
 import numpy as np
+import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 readMode = True
 
-distanceCapture = False
+distanceCapture = True
 interferenceCapture = False
 manufacturerCapture = True
-channelCapture = False
+channelCapture = True
 
 abs_filter = '3c:08:f6:fb:31:db'
 fritz_box = 'c8:0e:14:d7:0a:86'
@@ -18,11 +19,11 @@ fritz_box = 'c8:0e:14:d7:0a:86'
 def main():
     DIR = './distances/'
     filename = DIR+'dt1.pcap'
-    accessPointName = 'My Iphone'
+    accessPointName = 'Ziggo73FE5'
     interfaceName = 'en0'
 
     get_network_card(interfaceName)
-    filter = get_access_point_mac(accessPointName)
+    # filter = get_access_point_mac(accessPointName)
     if(readMode == False):
         timeout = 60
         capture_packet(filename, timeout, interfaceName)
@@ -39,7 +40,7 @@ def main():
             scenerio_channel(filter)
 
     # addresses_list('./sav2.pcap')
-    # print calculate_average('./manufacturer/iphone.pcap', 'wlan.ta == 7e:04:d0:67:78:91')
+    # print calculate_average('./distances/dt8.pcap', 'wlan.ta == 1c:3e:84:83:5b:66')
 
 def capture_packet(filename, timeout, interface):
     cap = pyshark.LiveCapture(output_file=filename, interface=interface, monitor_mode=True)
@@ -93,6 +94,7 @@ def calculate_average(filename, filter='2e:20:0b:40:d1:67'):
     cap = pyshark.FileCapture(filename, display_filter=filter)
     sum = 0
     j = 0
+    print cap[0]
     for pkt in cap:
         if (hasattr(pkt.radiotap, 'datarate') and hasattr(pkt.radiotap, 'dbm_antnoise') and hasattr(pkt.radiotap, 'dbm_antsignal')):
             snr = int(pkt.radiotap.dbm_antsignal)-int(pkt.radiotap.dbm_antnoise)
@@ -121,16 +123,20 @@ def scenerio_distance(n_files, flt=abs_filter):
     DIR = './distances'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
     files = {'dt1.pcap', 'dt2.pcap', 'dt3.pcap', 'dt4.pcap', 'dt5.pcap'}
-    distance = {1, 5, 10, 15, 20}
 
-    snr = get_snr_values(files, flt)
+    snr = [57,56,35,29,26,24,29,10,4,-14]
+    distance = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
 
-    plt.plot(snr, distance)
-    plt.title('SNR fluctuation with distance to the access point')
-    plt.xlabel('Distance')
+    # snr = get_snr_values(files, flt)
+
+    plt.bar(distance, height=[57,56,35,29,26,24,29,10,4,-14], width=[4,4,4,4,4,4,4,4,4,4])
+    plt.xticks(distance, ['<1', '5', '10', '15', '20', '25', '30', '35', '40', '45']);
+    plt.hold(True)
+    plt.plot(distance, snr, 'r-')
+    plt.xlabel('Distance [m]')
     plt.ylabel('SNR')
     plt.savefig("distance_plot.pdf", bbox_inches='tight', pad_inches=0.5)
-    plt.close()
+    plt.show()
 
 """
     Investigate if interference causes degradation of signal strength
@@ -183,18 +189,16 @@ def scenerio_channel(flt='c8:0e:14:d7:0a:86'):
     DIR = './channels'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
-    files = {'channel1.pcap', 'channel2.pcap', 'channel3.pcap', 'channel4.pcap', 'channel5.pcap'}
-    snr = get_snr_values(files, flt)
+    # files = {'channel1.pcap', 'channel2.pcap', 'channel3.pcap', 'channel4.pcap', 'channel5.pcap'}
+    # snr = get_snr_values(files, flt)
 
-    x = np.arange(5)
-    plt.bar(x, height=[46, 51, 34, 49, 38])
-    plt.xticks(x + .5, ['iphone', 'cisco', 'onePlus', 'ubee', 'fritzbox']);
-
-    plt.title('SNR fluctuation with different channels')
+    x = np.arange(13)
+    plt.bar(x, height=[38,46,42,48,48,42,41,41,43,49,46,50,47])
+    plt.xticks(x+0.5, ['1','2','3','4','5','6','7','8','9','10','11','12','13']);
     plt.xlabel('Channel')
     plt.ylabel('SNR')
     plt.savefig("channel_plot.pdf", bbox_inches='tight', pad_inches=0.5)
-    plt.close()
+    plt.show()
 
 main()
 
