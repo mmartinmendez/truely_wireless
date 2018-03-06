@@ -18,8 +18,11 @@ abs_filter = '3c:08:f6:fb:31:db'
 fritz_box = 'c8:0e:14:d7:0a:86'
 
 
-
-# Prints out the netwoek information and depending on the flags captures data/analyses captured data
+"""
+    Prints out the netwoek information and depending on the flags captures data/analyses captured data
+    
+    Due to errors from tshark when gathering data from multiple pcap files at once, the data needs to be collected one at a time.
+"""
 def main():
     DIR = './distances/'
     filename = DIR+'dt1.pcap'
@@ -129,6 +132,9 @@ def get_snr_values(files, flt):
 def scenerio_distance(n_files, flt=abs_filter):
     DIR = './distances'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+
+    #TODO
+    # fix the error encountered when multiple files are sent at the same time
     # files = ['dt1.pcap', 'dt2.pcap', 'dt3.pcap', 'dt4.pcap', 'dt5.pcap', 'dt6.pcap', 'dt7.pcap', 'dt8.pcap', 'dt9.pcap', 'dt10.pcap']
     # snr = get_snr_values(files, flt)
 
@@ -152,6 +158,8 @@ def scenerio_manufacturer(flt=abs_filter):
     DIR = './manufacturer'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
+    # TODO
+    # fix the error encountered when multiple files are sent at the same time
     # files = ['iphone.pcap', 'cisco.pcap', 'onePlus.pcap', 'ubee.pcap', 'fritzbox.pcap']
     # mac = ['wlan.ta == 7e:04:d0:67:78:91', 'wlan.ta == 3c:08:f6:fb:31:db', 'wlan.sa == 94:65:2d:8c:bc:c1', 'wlan.ta == 1c:3e:84:83:5b:66', 'wlan.ta == c8:0e:14:d7:0a:86']
     # snr = get_snr_values(files, mac)
@@ -171,6 +179,8 @@ def scenerio_channel(flt='c8:0e:14:d7:0a:86'):
     DIR = './channels'
     print len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
+    # TODO
+    # fix the error encountered when multiple files are sent at the same time
     # files = ['channel1.pcap', 'channel2.pcap', 'channel3.pcap', 'channel4.pcap', 'channel5.pcap', 'channel6.pcap', 'channel7.pcap', 'channel8.pcap', 'channel9.pcap', 'channel10.pcap', 'channel11.pcap', 'channel12.pcap', 'channel13.pcap']
     # snr = get_snr_values(files, flt)
 
