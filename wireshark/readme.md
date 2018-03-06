@@ -8,8 +8,8 @@ Scenerios:
 
 Steps:
 
-* ifconfig (to find the mac of the network card)
-* ip route (to find the ip of the default device to communicate to)
+* ifconfig (to find the mac of the network card) (windows - ipconfig)
+* ip route (to find the ip of the default device to communicate to) (mac - route -n get default; windows - route print)
 * ping -c 10 <ip of default device>
 * filter in wireshark: icmp
 * filter in wireshark: eth.dst == < destination mac from icmp filter>
