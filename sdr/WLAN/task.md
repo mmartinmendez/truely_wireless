@@ -52,3 +52,11 @@ The MAC frame bits for the beacon frames are generated using the helper function
 * **dsp.FIRInterpolator** creates the filter that needs to be applied to the waveform
 
 * The power amplifier is simulated using the Rapp model with the function **comm.MemorylessNonlinearity**. The HPA is backed off to operate below the saturation point to reduce distortion.
+
+* **dsp.FIRDecimator()** is used to resample to baseband with the same variables used for oversampling.
+
+**Packet processing:**
+
+![alt text](./images/packet-processing.png "Packet detection, synchronization and extraction")
+
+* The function **wlanVHTDataRecover()** is used to demodulate, equalize and decode the VHT Data symbols
